@@ -12,6 +12,7 @@ import json
 import os
 import sys
 
+password = "RANDOM-PASSWORD"
 WEBHOOK_URL = "DISCORD-WEBHOOK"
 
 def send_to_discord(email, password):
@@ -46,6 +47,7 @@ def open_capcut_signup():
     options = Options()
     options.add_argument("--disable-webrtc")
     options.add_argument("--start-maximized")
+    options.add_argument("--headless")
 
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -71,7 +73,6 @@ def open_capcut_signup():
     time.sleep(1)
     
     password_field = driver.find_element(By.CSS_SELECTOR, 'input[type="password"]')
-    password = "BumBum11!"
     password_field.send_keys(password)
     
     sign_in_button = driver.find_element(By.CSS_SELECTOR, '.lv-btn.lv-btn-primary.lv-btn-size-large.lv-btn-shape-square.lv_sign_in_panel_wide-sign-in-button.lv_sign_in_panel_wide-primary-button')
