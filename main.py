@@ -12,15 +12,15 @@ import json
 import os
 import sys
 
-password = "RANDOM-PASSWORD"
-WEBHOOK_URL = "DISCORD-WEBHOOK"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1350343877583700001/PCT7RmPh1QQA2cBin3g0IUC_OD18QGnM53NkbTCHsWDmWPlTsQfp7CIByq2DbFHQt6mA"
 
-def send_to_discord(email, password):
+def send_to_discord(email_password_pairs):
     embed = {
         "embeds": [
             {
                 "title": "CapCut Account Details",
-                "description": f"**Details:**\n\n`{email}:{password}`",
+                "description": "**Account Information:**\n\n"
+                                + "\n".join([f"`{email}:{password}`" for email, password in email_password_pairs]),
                 "color": 7506394,
                 "thumbnail": {
                     "url": "https://media.discordapp.net/attachments/1154900995638313001/1350345704538640434/capcut-logo-on-transparent-white-background-free-vector.jpg?ex=67d666f0&is=67d51570&hm=b95e70d6ddb40c100c9fd348b42eba9c614eda78eec7325d228977337e5308d5&=&format=webp&width=648&height=648"
@@ -47,8 +47,6 @@ def open_capcut_signup():
     options = Options()
     options.add_argument("--disable-webrtc")
     options.add_argument("--start-maximized")
-    options.add_argument("--headless")
-
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
@@ -73,6 +71,7 @@ def open_capcut_signup():
     time.sleep(1)
     
     password_field = driver.find_element(By.CSS_SELECTOR, 'input[type="password"]')
+    password = "BumBum11!"
     password_field.send_keys(password)
     
     sign_in_button = driver.find_element(By.CSS_SELECTOR, '.lv-btn.lv-btn-primary.lv-btn-size-large.lv-btn-shape-square.lv_sign_in_panel_wide-sign-in-button.lv_sign_in_panel_wide-primary-button')
@@ -83,7 +82,6 @@ def open_capcut_signup():
     try:
         year_field = driver.find_element(By.XPATH, '//*[contains(@placeholder, "Jahr")]')
         year_field.send_keys("2000")
-        print("Year set to 2000.")
 
         actions = ActionChains(driver)
         (actions
@@ -94,32 +92,24 @@ def open_capcut_signup():
          .send_keys(Keys.ENTER)
          .send_keys(Keys.ENTER)
          .perform())
-        print("Automatically selected month and day")
     except Exception as e:
-        print(f"Error while setting year: {e}")
+        pass
     
-    print("Please manually select the month and day.")
-
     while True:
         try:
             next_button = driver.find_element(By.CSS_SELECTOR, '.lv-btn.lv-btn-primary.lv-btn-size-default.lv-btn-shape-square.lv_sign_in_panel_wide-birthday-next')
             
             if "lv-btn-disabled" not in next_button.get_attribute("class"):
-                print("Button is enabled. Clicking the 'Next' button.")
                 next_button.click()
                 break
-            else:
-                print("Button is still disabled. Waiting for it to be enabled.")
-        
         except Exception as e:
-            print(f"Error: {e}. Retrying...")
+            pass
 
         time.sleep(1)
 
-    print("Waiting for email with verification code...")
-    
     driver.switch_to.window(driver.window_handles[1])
     email_found = False
+    verification_code = ""
     
     while not email_found:
         try:
@@ -129,10 +119,9 @@ def open_capcut_signup():
             match = re.search(r'(\d+)$', email_subject)
             if match:
                 verification_code = match.group(1)
-                print(f"Found verification code: {verification_code}")
                 email_found = True
         except Exception as e:
-            print("Email not yet received or could not find subject. Retrying...")
+            pass
         
         time.sleep(2)
     
@@ -146,15 +135,12 @@ def open_capcut_signup():
         for digit in verification_code:
             actions.send_keys(digit)
         actions.perform()
-
-        print("Verification code entered successfully.")
     except Exception as e:
-        print(f"Error while entering verification code: {e}")
+        pass
 
-    send_to_discord(email_address, password)
-
-    print("Browser will be closed now.")
     driver.quit()
+    
+    return email_address, password
 
 def clear_screen():
     if os.name == 'nt':
@@ -170,9 +156,12 @@ def main():
     
     repeat_count = int(input("How many times do you want to repeat the process? "))
     
+    email_password_pairs = []
+
     for _ in range(repeat_count):
         clear_screen()
-        open_capcut_signup()
+        email, password = open_capcut_signup()
+        email_password_pairs.append((email, password))
         print("\033[32m░██████╗██╗░░░██╗░█████╗░░█████╗░███████╗░██████╗")
         print("██╔════╝██║░░░██║██╔══██╗██╔══██╗██╔════╝██╔════╝")
         print("╚█████╗░██║░░░██║██║░░╚═╝██║░░╚═╝█████╗░░╚█████╗░")
@@ -180,6 +169,8 @@ def main():
         print("██████╔╝╚██████╔╝╚█████╔╝╚█████╔╝███████╗██████╔╝")
         print("╚═════╝░░╚═════╝░░╚════╝░░╚════╝░╚══════╝╚═════╝░\033[0m")
         time.sleep(5)
+    
+    send_to_discord(email_password_pairs)
 
 if __name__ == "__main__":
     main()
